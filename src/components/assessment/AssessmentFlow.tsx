@@ -9,6 +9,7 @@ export const AssessmentFlow = () => {
     nextQuestion,
     previousQuestion,
     answerQuestion,
+    completeAssessment,
     getCurrentQuestion,
     getCurrentAnswer,
     canProceed,
@@ -26,7 +27,12 @@ export const AssessmentFlow = () => {
   };
 
   const handleNext = () => {
-    nextQuestion();
+    if (state.currentQuestionIndex === totalQuestions - 1) {
+      // This is the last question - complete the assessment
+      completeAssessment();
+    } else {
+      nextQuestion();
+    }
   };
 
   const handlePrevious = () => {
@@ -61,9 +67,9 @@ export const AssessmentFlow = () => {
         <Button
           onClick={handleNext}
           disabled={!canProceed()}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 bg-gradient-primary hover:shadow-glow transition-all duration-300"
         >
-          {state.currentQuestionIndex === totalQuestions - 1 ? 'Finish' : 'Next'}
+          {state.currentQuestionIndex === totalQuestions - 1 ? 'Complete Assessment' : 'Next'}
           <ChevronRight className="w-4 h-4" />
         </Button>
       </div>

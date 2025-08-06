@@ -47,6 +47,7 @@ export const useAssessment = () => {
     setState(prev => {
       const nextIndex = prev.currentQuestionIndex + 1;
       if (nextIndex >= assessmentQuestions.length) {
+        // Assessment complete - go to results
         return {
           ...prev,
           section: 'results',
@@ -58,6 +59,14 @@ export const useAssessment = () => {
         currentQuestionIndex: nextIndex
       };
     });
+  }, []);
+
+  const completeAssessment = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      section: 'results',
+      isComplete: true
+    }));
   }, []);
 
   const previousQuestion = useCallback(() => {
@@ -232,6 +241,7 @@ export const useAssessment = () => {
     answerQuestion,
     nextQuestion,
     previousQuestion,
+    completeAssessment,
     calculateWISCARScores,
     calculateOverallScore,
     getRecommendation,

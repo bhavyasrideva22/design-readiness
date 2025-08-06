@@ -16,6 +16,8 @@ const Index = () => {
     getProgress
   } = useAssessment();
 
+  console.log('Current section:', state.section, 'Progress:', getProgress());
+
   const getCurrentSectionName = () => {
     switch (state.section) {
       case 'intro': return 'Introduction';
