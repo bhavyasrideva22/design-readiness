@@ -16,7 +16,9 @@ const Index = () => {
     getProgress
   } = useAssessment();
 
-  console.log('Current section:', state.section, 'Progress:', getProgress());
+  console.log('=== INDEX COMPONENT RENDER ===');
+  console.log('Current section:', state.section, 'Progress:', getProgress(), 'isComplete:', state.isComplete);
+  console.log('==============================');
 
   const getCurrentSectionName = () => {
     switch (state.section) {
@@ -28,34 +30,42 @@ const Index = () => {
   };
 
   const renderContent = () => {
-    console.log('Rendering content for section:', state.section, 'isComplete:', state.isComplete);
+    console.log('=== RENDER CONTENT DEBUG ===');
+    console.log('Current state.section:', state.section);
+    console.log('Current state.isComplete:', state.isComplete);
+    console.log('Current state.currentQuestionIndex:', state.currentQuestionIndex);
+    console.log('=============================');
+    
+    // Force results page if marked as complete
+    if (state.isComplete || state.section === 'results') {
+      console.log('>>> RENDERING RESULTS SECTION <<<');
+      const wiscarScores = calculateWISCARScores();
+      const overallScore = calculateOverallScore(wiscarScores);
+      const recommendation = getRecommendation(overallScore);
+      
+      console.log('Results data:', { wiscarScores, overallScore, recommendation });
+      
+      return (
+        <ResultsSection
+          wiscarScores={wiscarScores}
+          overallScore={overallScore}
+          recommendation={recommendation}
+          onRestart={restart}
+        />
+      );
+    }
     
     switch (state.section) {
       case 'intro':
+        console.log('>>> RENDERING INTRODUCTION SECTION <<<');
         return <IntroductionSection onStart={startAssessment} />;
       
       case 'assessment':
+        console.log('>>> RENDERING ASSESSMENT FLOW <<<');
         return <AssessmentFlow />;
       
-      case 'results':
-        console.log('Rendering results section...');
-        const wiscarScores = calculateWISCARScores();
-        const overallScore = calculateOverallScore(wiscarScores);
-        const recommendation = getRecommendation(overallScore);
-        
-        console.log('Results data:', { wiscarScores, overallScore, recommendation });
-        
-        return (
-          <ResultsSection
-            wiscarScores={wiscarScores}
-            overallScore={overallScore}
-            recommendation={recommendation}
-            onRestart={restart}
-          />
-        );
-      
       default:
-        console.log('Default case - showing introduction');
+        console.log('>>> DEFAULT - RENDERING INTRODUCTION SECTION <<<');
         return <IntroductionSection onStart={startAssessment} />;
     }
   };

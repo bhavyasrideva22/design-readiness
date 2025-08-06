@@ -18,7 +18,17 @@ export const AssessmentFlow = () => {
 
   const currentQuestion = getCurrentQuestion();
   
-  console.log('AssessmentFlow render - currentQuestion:', currentQuestion, 'section:', state.section);
+  console.log('=== ASSESSMENT FLOW RENDER ===');
+  console.log('Current section:', state.section);
+  console.log('Current isComplete:', state.isComplete);
+  console.log('Current question:', currentQuestion?.id);
+  console.log('==============================');
+  
+  // Don't render if we're in results section
+  if (state.section === 'results' || state.isComplete) {
+    console.log('Assessment complete - should not render AssessmentFlow');
+    return null;
+  }
   
   if (!currentQuestion) {
     console.log('No current question - section might have changed');

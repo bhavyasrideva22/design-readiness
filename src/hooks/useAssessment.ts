@@ -62,6 +62,7 @@ export const useAssessment = () => {
   }, []);
 
   const completeAssessment = useCallback(() => {
+    console.log('=== COMPLETE ASSESSMENT ===');
     console.log('Complete assessment called - transitioning to results');
     setState(prev => {
       console.log('Previous state:', prev);
@@ -70,9 +71,15 @@ export const useAssessment = () => {
         section: 'results' as const,
         isComplete: true
       };
-      console.log('New state:', newState);
+      console.log('New state will be:', newState);
       return newState;
     });
+    
+    // Force a small delay to ensure state is updated
+    setTimeout(() => {
+      console.log('=== POST-COMPLETION CHECK ===');
+      console.log('Assessment should now be complete');
+    }, 100);
   }, []);
 
   const previousQuestion = useCallback(() => {
