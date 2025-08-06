@@ -28,6 +28,8 @@ const Index = () => {
   };
 
   const renderContent = () => {
+    console.log('Rendering content for section:', state.section, 'isComplete:', state.isComplete);
+    
     switch (state.section) {
       case 'intro':
         return <IntroductionSection onStart={startAssessment} />;
@@ -36,9 +38,12 @@ const Index = () => {
         return <AssessmentFlow />;
       
       case 'results':
+        console.log('Rendering results section...');
         const wiscarScores = calculateWISCARScores();
         const overallScore = calculateOverallScore(wiscarScores);
         const recommendation = getRecommendation(overallScore);
+        
+        console.log('Results data:', { wiscarScores, overallScore, recommendation });
         
         return (
           <ResultsSection
@@ -50,6 +55,7 @@ const Index = () => {
         );
       
       default:
+        console.log('Default case - showing introduction');
         return <IntroductionSection onStart={startAssessment} />;
     }
   };

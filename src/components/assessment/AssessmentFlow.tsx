@@ -18,7 +18,10 @@ export const AssessmentFlow = () => {
 
   const currentQuestion = getCurrentQuestion();
   
+  console.log('AssessmentFlow render - currentQuestion:', currentQuestion, 'section:', state.section);
+  
   if (!currentQuestion) {
+    console.log('No current question - section might have changed');
     return null;
   }
 
@@ -27,10 +30,14 @@ export const AssessmentFlow = () => {
   };
 
   const handleNext = () => {
+    console.log('HandleNext called - current index:', state.currentQuestionIndex, 'total questions:', totalQuestions);
+    
     if (state.currentQuestionIndex === totalQuestions - 1) {
       // This is the last question - complete the assessment
+      console.log('Last question reached - completing assessment');
       completeAssessment();
     } else {
+      console.log('Moving to next question');
       nextQuestion();
     }
   };

@@ -62,11 +62,17 @@ export const useAssessment = () => {
   }, []);
 
   const completeAssessment = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      section: 'results',
-      isComplete: true
-    }));
+    console.log('Complete assessment called - transitioning to results');
+    setState(prev => {
+      console.log('Previous state:', prev);
+      const newState = {
+        ...prev,
+        section: 'results' as const,
+        isComplete: true
+      };
+      console.log('New state:', newState);
+      return newState;
+    });
   }, []);
 
   const previousQuestion = useCallback(() => {
@@ -217,13 +223,17 @@ export const useAssessment = () => {
   }, []);
 
   const getCurrentQuestion = (): Question | null => {
-    return assessmentQuestions[state.currentQuestionIndex] || null;
+    const question = assessmentQuestions[state.currentQuestionIndex] || null;
+    console.log('getCurrentQuestion - index:', state.currentQuestionIndex, 'question:', question?.id);
+    return question;
   };
 
   const getProgress = (): number => {
     if (state.section === 'intro') return 0;
     if (state.section === 'results') return 100;
-    return (state.currentQuestionIndex / assessmentQuestions.length) * 100;
+    const progress = (state.currentQuestionIndex / assessmentQuestions.length) * 100;
+    console.log('getProgress - section:', state.section, 'index:', state.currentQuestionIndex, 'progress:', progress);
+    return progress;
   };
 
   const getCurrentAnswer = (): any => {
@@ -233,7 +243,9 @@ export const useAssessment = () => {
 
   const canProceed = (): boolean => {
     const currentQuestion = getCurrentQuestion();
-    return currentQuestion ? state.answers[currentQuestion.id] !== undefined : false;
+    const canProceedResult = currentQuestion ? state.answers[currentQuestion.id] !== undefined : false;
+    console.log('canProceed - question:', currentQuestion?.id, 'answer:', state.answers[currentQuestion?.id || ''], 'result:', canProceedResult);
+    return canProceedResult;
   };
 
   return {
