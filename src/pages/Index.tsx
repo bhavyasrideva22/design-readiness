@@ -1,11 +1,65 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { AssessmentHeader } from "@/components/assessment/AssessmentHeader";
+import { IntroductionSection } from "@/components/assessment/IntroductionSection";
+import { AssessmentFlow } from "@/components/assessment/AssessmentFlow";
+import { ResultsSection } from "@/components/assessment/ResultsSection";
+import { useAssessment } from "@/hooks/useAssessment";
 
 const Index = () => {
+  const {
+    state,
+    startAssessment,
+    calculateWISCARScores,
+    calculateOverallScore,
+    getRecommendation,
+    restart,
+    getProgress
+  } = useAssessment();
+
+  const getCurrentSectionName = () => {
+    switch (state.section) {
+      case 'intro': return 'Introduction';
+      case 'assessment': return 'Assessment Questions';
+      case 'results': return 'Results';
+      default: return 'Introduction';
+    }
+  };
+
+  const renderContent = () => {
+    switch (state.section) {
+      case 'intro':
+        return <IntroductionSection onStart={startAssessment} />;
+      
+      case 'assessment':
+        return <AssessmentFlow />;
+      
+      case 'results':
+        const wiscarScores = calculateWISCARScores();
+        const overallScore = calculateOverallScore(wiscarScores);
+        const recommendation = getRecommendation(overallScore);
+        
+        return (
+          <ResultsSection
+            wiscarScores={wiscarScores}
+            overallScore={overallScore}
+            recommendation={recommendation}
+            onRestart={restart}
+          />
+        );
+      
+      default:
+        return <IntroductionSection onStart={startAssessment} />;
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-background">
+      <AssessmentHeader 
+        currentSection={getCurrentSectionName()}
+        progress={getProgress()}
+      />
+      
+      <div className="container mx-auto px-6 py-12 max-w-4xl">
+        {renderContent()}
       </div>
     </div>
   );
