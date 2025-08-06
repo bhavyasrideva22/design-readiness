@@ -96,8 +96,9 @@ export const useAssessment = () => {
           const scale = question.likertScale!;
           normalizedScore = ((answer - scale.min) / (scale.max - scale.min)) * 100;
         } else if (question.type === 'multiple-choice') {
-          // Assume correct answers score higher
-          normalizedScore = (answer + 1) * 25; // 0-3 -> 25-100
+          // Assume later options (higher indices) indicate better answers for most questions
+          const optionCount = question.options?.length || 4;
+          normalizedScore = ((answer + 1) / optionCount) * 100;
         } else if (question.type === 'scenario') {
           normalizedScore = (answer / 5) * 100; // Assuming max value is 5
         }
@@ -113,6 +114,9 @@ export const useAssessment = () => {
       avgCategoryScores[category] = scores.reduce((sum, score) => sum + score, 0) / scores.length;
     });
 
+    // Default scores for missing categories
+    const defaultScore = 60; // Middle-range default
+    
     // Calculate WISCAR scores using weights
     const wiscarScores: WISCARScore = {
       will: 0,
@@ -123,57 +127,54 @@ export const useAssessment = () => {
       realWorldAlignment: 0
     };
 
-    // Calculate Will score
-    const willCategories = scoringWeights.will;
-    Object.keys(willCategories).forEach(category => {
-      if (avgCategoryScores[category]) {
-        wiscarScores.will += avgCategoryScores[category] * willCategories[category as keyof typeof willCategories];
-      }
-    });
+    // Calculate Will score (motivation, grit, growth mindset)
+    const willScore = (
+      (avgCategoryScores['grit'] || defaultScore) * 0.4 +
+      (avgCategoryScores['growth-mindset'] || defaultScore) * 0.6
+    );
+    wiscarScores.will = Math.round(willScore);
 
     // Calculate Interest score
-    const interestCategories = scoringWeights.interest;
-    Object.keys(interestCategories).forEach(category => {
-      if (avgCategoryScores[category]) {
-        wiscarScores.interest += avgCategoryScores[category] * interestCategories[category as keyof typeof interestCategories];
-      }
-    });
+    const interestScore = (
+      (avgCategoryScores['interest'] || defaultScore) * 0.7 +
+      (avgCategoryScores['riasec'] || defaultScore) * 0.3
+    );
+    wiscarScores.interest = Math.round(interestScore);
 
     // Calculate Skill score
-    const skillCategories = scoringWeights.skill;
-    Object.keys(skillCategories).forEach(category => {
-      if (avgCategoryScores[category]) {
-        wiscarScores.skill += avgCategoryScores[category] * skillCategories[category as keyof typeof skillCategories];
-      }
-    });
+    const skillScore = (
+      (avgCategoryScores['domain-knowledge'] || defaultScore) * 0.5 +
+      (avgCategoryScores['tools'] || defaultScore) * 0.3 +
+      (avgCategoryScores['problem-solving'] || defaultScore) * 0.2
+    );
+    wiscarScores.skill = Math.round(skillScore);
 
     // Calculate Cognitive score
-    const cognitiveCategories = scoringWeights.cognitive;
-    Object.keys(cognitiveCategories).forEach(category => {
-      if (avgCategoryScores[category]) {
-        wiscarScores.cognitive += avgCategoryScores[category] * cognitiveCategories[category as keyof typeof cognitiveCategories];
-      }
-    });
+    const cognitiveScore = (
+      (avgCategoryScores['logical-reasoning'] || defaultScore) * 0.3 +
+      (avgCategoryScores['pattern-recognition'] || defaultScore) * 0.3 +
+      (avgCategoryScores['analytical-thinking'] || defaultScore) * 0.4
+    );
+    wiscarScores.cognitive = Math.round(cognitiveScore);
 
     // Calculate Ability to Learn score
-    const learningCategories = scoringWeights.abilityToLearn;
-    Object.keys(learningCategories).forEach(category => {
-      if (avgCategoryScores[category]) {
-        wiscarScores.abilityToLearn += avgCategoryScores[category] * learningCategories[category as keyof typeof learningCategories];
-      }
-    });
+    const learningScore = (
+      (avgCategoryScores['growth-mindset'] || defaultScore) * 0.4 +
+      (avgCategoryScores['openness'] || defaultScore) * 0.6
+    );
+    wiscarScores.abilityToLearn = Math.round(learningScore);
 
     // Calculate Real World Alignment score
-    const alignmentCategories = scoringWeights.realWorldAlignment;
-    Object.keys(alignmentCategories).forEach(category => {
-      if (avgCategoryScores[category]) {
-        wiscarScores.realWorldAlignment += avgCategoryScores[category] * alignmentCategories[category as keyof typeof alignmentCategories];
-      }
-    });
+    const alignmentScore = (
+      (avgCategoryScores['work-preference'] || defaultScore) * 0.5 +
+      (avgCategoryScores['working-style'] || defaultScore) * 0.5
+    );
+    wiscarScores.realWorldAlignment = Math.round(alignmentScore);
 
-    // Round scores
-    Object.keys(wiscarScores).forEach(key => {
-      wiscarScores[key as keyof WISCARScore] = Math.round(wiscarScores[key as keyof WISCARScore]);
+    console.log('WISCAR Calculation Debug:', {
+      categoryScores: avgCategoryScores,
+      wiscarScores,
+      answersCount: Object.keys(answers).length
     });
 
     return wiscarScores;
